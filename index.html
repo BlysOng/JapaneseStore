@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Japan Mono — Everyday Things from Japan</title>
+
+<!--
+  FONT PAIRING (design tokens)
+  Display:  Shippori Mincho  — a brush-influenced Japanese mincho serif, used for headlines & the wordmark
+  Body:     Zen Maru Gothic  — rounded, soft gothic, used for paragraphs & UI copy
+  Utility:  Space Mono       — monospace, used for prices, stock counts, labels (gives a "price tag / hanko ink" feel)
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Zen+Maru+Gothic:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root{
+  /* core palette — supplied by client (washed sakura → deep shuiro lacquer) */
+  --cream:   #f9e9e0;
+  --blush:   #f2cfcf;
+  --rose:    #e3a1a1;
+  --coral:   #d4646a;
+  --crimson: #b93d4d;
+  --shrine:  #9b2e3b;
+  --wine:    #7e1f2a;
+  --dwine:   #5b1216;
+  --ink-red: #3e0a0f;
+  --black:   #260303;
+
+  /* supporting neutrals/accents, kept close to the brief's mood */
+  --paper:   #fffaf3;
+  --ink:     #221311;
+  --gold:    #b8924c;
+  --line:    rgba(38,3,3,.12);
+
+  --display: 'Shippori Mincho', serif;
+  --body:    'Zen Maru Gothic', sans-serif;
+  --mono:    'Space Mono', monospace;
+
+  --container: 1280px;
+  --radius: 2px;
+  --ease: cubic-bezier(.22,.7,.2,1);
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--body);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;}
+h1,h2,h3{font-family:var(--display);margin:0;}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:.7rem;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--shrine);
+}
+.container{max-width:var(--container);margin:0 auto;padding:0 32px;}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
+}
+
+/* ============================================================
+   SEIGAIHA WAVE DIVIDER (signature motif, used between sections)
+   ============================================================ */
+.wave-divider{
+  width:100%;
+  height:26px;
+  line-height:0;
+}
+.wave-divider svg{width:100%;height:100%;display:block;}
+
+/* ============================================================
+   ANNOUNCEMENT BAR
+   ============================================================ */
+.announce{
+  background:var(--ink-red);
+  color:var(--cream);
+  text-align:center;
+  font-family:var(--mono);
+  font-size:.72rem;
+  letter-spacing:.16em;
+  padding:9px 12px;
+  text-transform:uppercase;
+}
+
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+.navbar{
+  position:sticky;top:0;z-index:60;
+  background:var(--paper);
+  border-bottom:1px solid var(--line);
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:16px;
+  padding:14px 32px;
+}
+.nav-left,.nav-right{display:flex;align-items:center;gap:14px;}
+.nav-right{justify-content:flex-end;}
+
+.icon-btn{
+  width:42px;height:42px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;
+  transition:background .25s var(--ease), transform .25s var(--ease);
+  position:relative;
+}
+.icon-btn:hover{background:var(--blush);transform:translateY(-1px);}
+.icon-btn svg{width:20px;height:20px;stroke:var(--ink-red);fill:none;stroke-width:1.6;}
+
+.burger-btn span{
+  display:block;width:20px;height:2px;background:var(--ink-red);margin:4px auto;
+  transition:transform .3s var(--ease), opacity .3s var(--ease);
+}
+.burger-btn.open span:nth-child(1){transform:translateY(6px) rotate(45deg);}
+.burger-btn.open span:nth-child(2){opacity:0;}
+.burger-btn.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg);}
+
+/* wordmark + hanko seal (signature element) */
+.brand{
+  display:flex;align-items:center;gap:10px;justify-content:center;
+}
+.hanko{
+  width:30px;height:30px;border-radius:50%;
+  background:var(--shrine);
+  color:var(--cream);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);
+  font-size:.95rem;
+  transform:rotate(-6deg);
+  box-shadow:0 0 0 2px var(--paper), 0 0 0 3px var(--shrine);
+  flex-shrink:0;
+}
+.brand h1{
+  font-size:1.5rem;
+  letter-spacing:.04em;
+  font-weight:700;
+  color:var(--ink-red);
+  white-space:nowrap;
+}
+.brand-link{display:flex;align-items:center;cursor:pointer;}
+
+.search-wrap{display:flex;align-items:center;}
+.search-input{
+  width:0;opacity:0;
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:0 14px;
+  height:38px;
+  font-family:var(--body);
+  font-size:.85rem;
+  background:var(--cream);
+  color:var(--ink-red);
+  transition:width .35s var(--ease), opacity .25s var(--ease), padding .35s var(--ease);
+  margin-right:0;
+}
+.search-wrap.active .search-input{width:200px;opacity:1;padding:0 14px;margin-right:8px;}
+.search-input::placeholder{color:var(--wine);opacity:.6;}
+
+.cart-btn{position:relative;}
+.cart-count{
+  position:absolute;top:1px;right:1px;
+  min-width:17px;height:17px;border-radius:50%;
+  background:var(--crimson);color:#fff;
+  font-family:var(--mono);font-size:.62rem;
+  display:flex;align-items:center;justify-content:center;
+  transform:scale(0);transition:transform .3s var(--ease);
+  padding:0 3px;
+}
+.cart-count.show{transform:scale(1);}
+.cart-count.bump{animation:bump .4s var(--ease);}
+@keyframes bump{0%{transform:scale(1);}40%{transform:scale(1.45);}100%{transform:scale(1);}}
+
+/* ============================================================
+   OVERLAY (shared by drawer / burger / modals)
+   ============================================================ */
+.overlay{
+  position:fixed;inset:0;background:rgba(38,3,3,.45);
+  opacity:0;visibility:hidden;transition:opacity .35s var(--ease);
+  z-index:70;backdrop-filter:blur(1px);
+}
+.overlay.show{opacity:1;visibility:visible;}
+
+/* ============================================================
+   BURGER SIDE PANEL
+   ============================================================ */
+.side-panel{
+  position:fixed;top:0;left:0;height:100%;width:300px;
+  background:var(--ink-red);color:var(--cream);
+  z-index:80;
+  transform:translateX(-100%);
+  transition:transform .4s var(--ease);
+  padding:28px 26px;
+  display:flex;flex-direction:column;
+}
+.side-panel.open{transform:translateX(0);}
+.side-panel .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;}
+.side-panel .panel-head h3{font-size:1rem;letter-spacing:.1em;color:var(--rose);text-transform:uppercase;}
+.side-panel .close-x{color:var(--cream);font-size:1.3rem;}
+.cat-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;}
+.cat-list li{border-bottom:1px solid rgba(249,233,224,.15);}
+.cat-list a{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:16px 4px;font-family:var(--display);font-size:1.15rem;
+  transition:color .2s, padding-left .25s var(--ease);
+}
+.cat-list a:hover{color:var(--rose);padding-left:10px;}
+.cat-list span.arrow{font-family:var(--mono);font-size:.85rem;opacity:.6;}
+.panel-foot{margin-top:auto;font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;color:var(--rose);opacity:.8;line-height:1.7;}
+
+/* ============================================================
+   HERO CAROUSEL
+   ============================================================ */
+.hero{position:relative;overflow:hidden;height:78vh;min-height:460px;background:var(--ink-red);}
+.slide{
+  position:absolute;inset:0;
+  display:grid;place-items:center;
+  opacity:0;transition:opacity 1s var(--ease);
+}
+.slide.active{opacity:1;}
+.slide img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:saturate(1.05);
+  transform:scale(1.04);
+  transition:transform 7s linear;
+}
+.slide.active img{transform:scale(1.13);}
+.slide::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(100deg, rgba(38,3,3,.72) 0%, rgba(38,3,3,.38) 45%, rgba(38,3,3,.08) 100%);
+}
+.slide-content{
+  position:relative;z-index:2;color:var(--cream);
+  max-width:560px;width:100%;padding:0 8%;
+  opacity:0;transform:translateY(18px);
+  transition:opacity .8s var(--ease) .25s, transform .8s var(--ease) .25s;
+}
+.slide.active .slide-content{opacity:1;transform:translateY(0);}
+.slide-content .eyebrow{color:var(--rose);}
+.slide-content h2{font-size:clamp(2.1rem,4.6vw,3.4rem);line-height:1.08;margin:12px 0 14px;}
+.slide-content p{font-size:1rem;color:var(--blush);margin:0 0 22px;max-width:420px;}
+.cta-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--crimson);color:#fff;
+  padding:13px 26px;font-family:var(--mono);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;
+  border-radius:2px;
+  transition:background .25s var(--ease), letter-spacing .25s var(--ease), transform .25s var(--ease);
+}
+.cta-btn:hover{background:var(--shrine);letter-spacing:.16em;transform:translateY(-2px);}
+.cta-btn.ghost{background:transparent;border:1px solid var(--cream);}
+.cta-btn.ghost:hover{background:var(--cream);color:var(--ink-red);}
+
+.dots{
+  position:absolute;bottom:22px;left:0;right:0;
+  display:flex;justify-content:center;gap:10px;z-index:3;
+}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(249,233,224,.5);transition:all .3s var(--ease);}
+.dot.active{background:var(--cream);width:24px;border-radius:6px;}
+
+/* ============================================================
+   ABOUT STRIP (small black info band, per reference image)
+   ============================================================ */
+.about-strip{
+  background:var(--black);
+  color:var(--blush);
+  padding:34px 0;
+  text-align:center;
+}
+.about-strip p{
+  font-family:var(--body);
+  font-size:.95rem;
+  line-height:1.8;
+  max-width:780px;
+  margin:0 auto;
+}
+.about-strip strong{color:var(--rose);font-family:var(--display);font-weight:600;}
+
+/* ============================================================
+   PRODUCTS SECTION
+   ============================================================ */
+.section{padding:84px 0;}
+.section-head{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  margin-bottom:38px;flex-wrap:wrap;gap:14px;
+}
+.section-head h2{font-size:clamp(1.7rem,3vw,2.3rem);color:var(--ink-red);margin-top:8px;}
+.search-meta{font-family:var(--mono);font-size:.75rem;color:var(--wine);}
+.search-meta button{color:var(--crimson);text-decoration:underline;margin-left:6px;}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:20px;
+}
+@media (max-width:1180px){.grid{grid-template-columns:repeat(4,1fr);}}
+@media (max-width:820px){.grid{grid-template-columns:repeat(3,1fr);}}
+@media (max-width:560px){.grid{grid-template-columns:repeat(2,1fr);}}
+
+.card{
+  opacity:0;transform:translateY(28px);
+  transition:opacity .7s var(--ease), transform .7s var(--ease), box-shadow .35s var(--ease);
+  background:var(--cream);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.card.visible{opacity:1;transform:translateY(0);}
+.card:hover{box-shadow:0 18px 34px -16px rgba(38,3,3,.32);transform:translateY(-4px);}
+
+.card-media{position:relative;aspect-ratio:1/1;overflow:hidden;background:var(--blush);}
+.card-media img{
+  width:100%;height:100%;object-fit:cover;
+  transition:transform .6s var(--ease), filter .6s var(--ease);
+}
+.card:hover .card-media img{transform:scale(1.09) rotate(-0.4deg);filter:saturate(1.1);}
+.card-media .tag{
+  position:absolute;top:8px;left:8px;
+  background:var(--shrine);color:#fff;
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;
+  padding:4px 8px;border-radius:1px;
+}
+.card-body{padding:16px;display:flex;flex-direction:column;gap:6px;flex:1;}
+.card-cat{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;color:var(--wine);text-transform:uppercase;}
+.card-name{font-family:var(--display);font-size:1rem;color:var(--ink-red);line-height:1.3;min-height:2.4em;}
+.card-price{font-family:var(--mono);font-size:.95rem;color:var(--shrine);margin-top:auto;}
+.add-btn{
+  margin-top:8px;
+  border:1px solid var(--shrine);
+  color:var(--shrine);
+  padding:10px;text-align:center;
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+  transition:background .25s var(--ease), color .25s var(--ease);
+}
+.add-btn:hover{background:var(--shrine);color:#fff;}
+
+/* ============================================================
+   CATEGORY SHOWCASE
+   ============================================================ */
+.showcase-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:18px;
+}
+@media (max-width:760px){.showcase-grid{grid-template-columns:1fr;}}
+.showcase-card{
+  position:relative;aspect-ratio:16/10;overflow:hidden;border-radius:2px;
+  opacity:0;transform:translateY(28px);
+  transition:opacity .7s var(--ease), transform .7s var(--ease);
+}
+.showcase-card.visible{opacity:1;transform:translateY(0);}
+.showcase-card img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease);}
+.showcase-card:hover img{transform:scale(1.07);}
+.showcase-card::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg, rgba(38,3,3,0) 35%, rgba(38,3,3,.78) 100%);
+  transition:background .4s var(--ease);
+}
+.showcase-card:hover::before{background:linear-gradient(180deg, rgba(38,3,3,.1) 0%, rgba(38,3,3,.88) 100%);}
+.showcase-label{
+  position:absolute;left:22px;bottom:20px;color:var(--cream);z-index:2;
+  transition:transform .4s var(--ease);
+}
+.showcase-card:hover .showcase-label{transform:translateY(-6px);}
+.showcase-label .eyebrow{color:var(--rose);}
+.showcase-label h3{font-size:1.6rem;margin-top:6px;}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer{background:var(--ink-red);color:var(--blush);padding:56px 0 26px;}
+.footer-top{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  gap:30px;flex-wrap:wrap;border-bottom:1px solid rgba(249,233,224,.15);padding-bottom:34px;
+}
+.footer-brand .brand{justify-content:flex-start;}
+.footer-brand h1{color:var(--cream);}
+.footer-brand p{max-width:320px;font-size:.85rem;line-height:1.7;color:var(--rose);margin-top:12px;}
+.social-row{display:flex;gap:12px;}
+.social-row a{
+  width:38px;height:38px;border-radius:50%;border:1px solid rgba(249,233,224,.35);
+  display:flex;align-items:center;justify-content:center;
+  transition:background .25s var(--ease), transform .25s var(--ease), border-color .25s var(--ease);
+}
+.social-row a svg{width:16px;height:16px;stroke:var(--cream);fill:none;stroke-width:1.6;}
+.social-row a:hover{background:var(--crimson);border-color:var(--crimson);transform:translateY(-3px);}
+.footer-bottom{
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
+  margin-top:22px;font-family:var(--mono);font-size:.7rem;color:rgba(249,233,224,.6);letter-spacing:.05em;
+}
+
+/* ============================================================
+   CART DRAWER
+   ============================================================ */
+.drawer{
+  position:fixed;top:0;right:0;height:100%;width:380px;max-width:92vw;
+  background:var(--paper);z-index:85;
+  transform:translateX(100%);transition:transform .4s var(--ease);
+  display:flex;flex-direction:column;
+  box-shadow:-10px 0 30px rgba(38,3,3,.25);
+}
+.drawer.open{transform:translateX(0);}
+.drawer-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:22px 22px 16px;border-bottom:1px solid var(--line);
+}
+.drawer-head h3{font-family:var(--display);font-size:1.1rem;color:var(--ink-red);letter-spacing:.04em;text-transform:uppercase;}
+.drawer-head .count-pill{font-family:var(--mono);font-size:.7rem;color:var(--wine);}
+.drawer-close{font-size:1.4rem;color:var(--ink-red);}
+.drawer-items{flex:1;overflow-y:auto;padding:14px 22px;display:flex;flex-direction:column;gap:16px;}
+.drawer-empty{margin:auto;text-align:center;color:var(--wine);font-family:var(--body);padding:30px;}
+.drawer-row{display:flex;gap:12px;align-items:flex-start;}
+.drawer-row img{width:64px;height:64px;object-fit:cover;border-radius:2px;border:1px solid var(--line);}
+.drawer-row .di-name{font-family:var(--display);font-size:.92rem;color:var(--ink-red);}
+.drawer-row .di-meta{font-family:var(--mono);font-size:.72rem;color:var(--wine);margin-top:4px;}
+.drawer-row .di-remove{font-family:var(--mono);font-size:.66rem;color:var(--crimson);text-decoration:underline;margin-top:6px;}
+.drawer-foot{border-top:1px solid var(--line);padding:18px 22px 24px;}
+.drawer-sub{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.85rem;color:var(--ink-red);margin-bottom:14px;}
+.checkout-btn{
+  width:100%;background:var(--ink-red);color:var(--cream);
+  padding:15px;font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:.8rem;
+  transition:background .25s var(--ease);
+}
+.checkout-btn:hover{background:var(--shrine);}
+.checkout-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ============================================================
+   MODALS (quick view + checkout)
+   ============================================================ */
+.modal{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-46%) scale(.96);
+  background:var(--paper);
+  z-index:95;border-radius:3px;
+  opacity:0;visibility:hidden;
+  transition:opacity .3s var(--ease), transform .3s var(--ease);
+  max-height:88vh;overflow-y:auto;
+  box-shadow:0 30px 60px -20px rgba(38,3,3,.45);
+}
+.modal.show{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1);}
+.modal-close{
+  position:absolute;top:14px;right:16px;font-size:1.3rem;color:var(--ink-red);z-index:5;
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;
+  transition:background .2s;
+}
+.modal-close:hover{background:var(--blush);}
+
+/* quick view */
+#quickView{width:560px;max-width:92vw;}
+.qv-body{display:grid;grid-template-columns:1fr 1fr;}
+@media (max-width:560px){.qv-body{grid-template-columns:1fr;}}
+.qv-img{aspect-ratio:1/1;overflow:hidden;background:var(--blush);}
+.qv-img img{width:100%;height:100%;object-fit:cover;}
+.qv-info{padding:28px 26px;display:flex;flex-direction:column;gap:10px;}
+.qv-info .card-cat{color:var(--wine);}
+.qv-info h3{font-family:var(--display);font-size:1.3rem;color:var(--ink-red);}
+.qv-info .qv-price{font-family:var(--mono);font-size:1.1rem;color:var(--shrine);}
+.qv-info .qv-stock{font-family:var(--mono);font-size:.72rem;color:var(--wine);}
+.qv-info .qv-stock.low{color:var(--crimson);}
+.qty-row{display:flex;align-items:center;gap:14px;margin:6px 0 10px;}
+.qty-row span.lbl{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;color:var(--wine);text-transform:uppercase;}
+.stepper{display:flex;align-items:center;border:1px solid var(--line);}
+.stepper button{width:32px;height:32px;font-family:var(--mono);color:var(--ink-red);}
+.stepper button:hover{background:var(--blush);}
+.stepper input{width:40px;text-align:center;border:none;background:none;font-family:var(--mono);font-size:.9rem;}
+.qv-add{
+  background:var(--shrine);color:#fff;padding:13px;text-align:center;
+  font-family:var(--mono);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;
+  transition:background .25s var(--ease);
+}
+.qv-add:hover{background:var(--ink-red);}
+
+/* checkout modal */
+#checkoutModal{width:640px;max-width:92vw;padding:34px 36px 30px;}
+#checkoutModal h3{font-size:1.4rem;color:var(--ink-red);margin-bottom:4px;}
+.co-sub{font-family:var(--mono);font-size:.72rem;color:var(--wine);margin-bottom:20px;}
+.co-list{display:flex;flex-direction:column;gap:14px;max-height:260px;overflow-y:auto;margin-bottom:18px;padding-right:4px;}
+.co-row{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding-bottom:10px;}
+.co-row .co-left{display:flex;gap:10px;align-items:center;}
+.co-row img{width:48px;height:48px;object-fit:cover;border-radius:2px;}
+.co-row .co-name{font-family:var(--display);font-size:.88rem;color:var(--ink-red);}
+.co-row .co-qty{font-family:var(--mono);font-size:.7rem;color:var(--wine);}
+.co-row .co-amt{font-family:var(--mono);font-size:.85rem;color:var(--shrine);}
+.co-total{display:flex;justify-content:space-between;font-family:var(--mono);font-size:1.05rem;color:var(--ink-red);border-top:1px solid var(--line);padding-top:14px;margin-bottom:20px;}
+
+/* auth + payment panels inside checkout modal */
+.panel-stage{position:relative;}
+.stage-view{display:none;}
+.stage-view.active{display:block;}
+.form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.form-field label{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--wine);}
+.form-field input{
+  border:1px solid var(--line);padding:11px 12px;font-family:var(--body);font-size:.9rem;background:var(--cream);border-radius:2px;
+}
+.auth-toggle{font-family:var(--mono);font-size:.72rem;color:var(--wine);text-align:center;margin-top:10px;}
+.auth-toggle button{color:var(--crimson);text-decoration:underline;}
+.pay-options{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.pay-option{
+  display:flex;align-items:center;gap:10px;border:1px solid var(--line);padding:12px 14px;border-radius:2px;
+  cursor:pointer;font-family:var(--body);font-size:.88rem;color:var(--ink-red);
+  transition:border-color .2s;
+}
+.pay-option:hover{border-color:var(--rose);}
+.pay-option input{accent-color:var(--shrine);}
+.success-box{text-align:center;padding:30px 10px;}
+.success-box .hanko{margin:0 auto 16px;width:54px;height:54px;font-size:1.6rem;}
+.success-box h3{margin-bottom:8px;}
+.success-box p{font-family:var(--body);color:var(--wine);font-size:.9rem;}
+</style>
+</head>
+<body>
+
+<!-- ============ ANNOUNCEMENT BAR ============ -->
+<div class="announce">Free worldwide shipping — no minimum · 〒 Shipped with care from Japan</div>
+
+<!-- ============ NAVBAR ============ -->
+<header class="navbar">
+  <div class="nav-left">
+    <button class="icon-btn burger-btn" id="burgerBtn" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <a href="#" class="brand brand-link" id="homeLink" aria-label="Japan Mono home">
+    <span class="hanko">和</span>
+    <h1>JAPAN MONO</h1>
+  </a>
+
+  <div class="nav-right">
+    <div class="search-wrap" id="searchWrap">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search for tea sets, futons…" />
+      <button class="icon-btn" id="searchBtn" aria-label="Search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.6" y2="16.6"/></svg>
+      </button>
+    </div>
+    <button class="icon-btn cart-btn" id="cartBtn" aria-label="Open cart">
+      <svg viewBox="0 0 24 24"><path d="M3 4h2l2.4 12.4A2 2 0 0 0 9.4 18h8.2a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="9" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/></svg>
+      <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </div>
+</header>
+
+<!-- ============ BURGER SIDE PANEL ============ -->
+<div class="overlay" id="burgerOverlay"></div>
+<nav class="side-panel" id="burgerPanel">
+  <div class="panel-head">
+    <h3>Browse</h3>
+    <button class="close-x" id="burgerClose">×</button>
+  </div>
+  <ul class="cat-list">
+    <li><a href="#" data-cat="kitchen"><span>Kitchen Items</span><span class="arrow">→</span></a></li>
+    <li><a href="#" data-cat="bedroom"><span>Bedroom Items</span><span class="arrow">→</span></a></li>
+    <li><a href="#" data-cat="living"><span>Living Room Items</span><span class="arrow">→</span></a></li>
+    <li><a href="#" data-cat="toiletries"><span>Toiletries</span><span class="arrow">→</span></a></li>
+    <li><a href="#" data-cat="all"><span>All Products</span><span class="arrow">→</span></a></li>
+  </ul>
+  <p class="panel-foot">JAPAN MONO<br>道具と暮らし — Tools for everyday living, sourced across Japan.</p>
+</nav>
+
+<main>
+  <!-- ============ HERO CAROUSEL ============ -->
+  <section class="hero" id="hero">
+    <!-- Slide images: placeholder photography via picsum.photos (seeded, deterministic).
+         Swap each src for real product photography before launch. -->
+    <div class="slide active" data-slide="0">
+      <img src="https://picsum.photos/seed/japanmono-sakura-sale/1600/1000" alt="Sakura season sale">
+      <div class="slide-content">
+        <span class="eyebrow">桜 Sakura Season · Limited</span>
+        <h2>15% off tableware,<br>while the blossoms last</h2>
+        <p>Hand-glazed bowls, cast iron teapots and lacquerware trays — direct from artisan workshops.</p>
+        <a href="#products" class="cta-btn">Shop the sale</a>
+      </div>
+    </div>
+    <div class="slide" data-slide="1">
+      <img src="https://picsum.photos/seed/japanmono-tea-ceremony/1600/1000" alt="Tea ceremony goods">
+      <div class="slide-content">
+        <span class="eyebrow">茶 New Arrivals</span>
+        <h2>The tea ceremony,<br>brought into your kitchen</h2>
+        <p>Matcha sets, bamboo chasen and donabe clay pots for slow mornings.</p>
+        <a href="#products" class="cta-btn ghost">Discover the set</a>
+      </div>
+    </div>
+    <div class="slide" data-slide="2">
+      <img src="https://picsum.photos/seed/japanmono-living-room/1600/1000" alt="Japanese living room">
+      <div class="slide-content">
+        <span class="eyebrow">和室 Living Edit</span>
+        <h2>A quieter living room,<br>shaped by shoji light</h2>
+        <p>Kotatsu tables, noren curtains and folding screens for a calmer home.</p>
+        <a href="#products" class="cta-btn">Explore living room</a>
+      </div>
+    </div>
+    <div class="dots" id="dots"></div>
+  </section>
+
+  <!-- ============ ABOUT STRIP ============ -->
+  <section class="about-strip">
+    <div class="container">
+      <p><strong>Japan Mono</strong> is a small import house rooted in everyday Japanese craft —
+      from cast-iron kitchenware and futon linens to camellia-oil toiletries.
+      Every item is sourced from independent workshops across Japan and shipped worldwide, no minimum order.</p>
+    </div>
+  </section>
+
+  <div class="wave-divider" aria-hidden="true">
+    <svg viewBox="0 0 1200 26" preserveAspectRatio="none">
+      <path d="M0,16 C 50,0 100,0 150,16 C200,32 250,32 300,16 C350,0 400,0 450,16 C500,32 550,32 600,16 C650,0 700,0 750,16 C800,32 850,32 900,16 C950,0 1000,0 1050,16 C1100,32 1150,32 1200,16 L1200,26 L0,26 Z" fill="#260303"></path>
+    </svg>
+  </div>
+
+  <!-- ============ PRODUCTS ============ -->
+  <section class="section" id="products">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">道具 All Products</span>
+          <h2>Everyday things, made well</h2>
+        </div>
+        <div class="search-meta" id="searchMeta"></div>
+      </div>
+      <div class="grid" id="productGrid"></div>
+    </div>
+  </section>
+
+  <div class="wave-divider" aria-hidden="true" style="transform:scaleY(-1);">
+    <svg viewBox="0 0 1200 26" preserveAspectRatio="none">
+      <path d="M0,16 C 50,0 100,0 150,16 C200,32 250,32 300,16 C350,0 400,0 450,16 C500,32 550,32 600,16 C650,0 700,0 750,16 C800,32 850,32 900,16 C950,0 1000,0 1050,16 C1100,32 1150,32 1200,16 L1200,26 L0,26 Z" fill="#260303"></path>
+    </svg>
+  </div>
+
+  <!-- ============ CATEGORY SHOWCASE ============ -->
+  <section class="section" id="categories">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">部屋別 Shop by Room</span>
+          <h2>Find your corner of Japan</h2>
+        </div>
+      </div>
+      <div class="showcase-grid" id="showcaseGrid"></div>
+    </div>
+  </section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="brand" id="homeLinkFooter" style="cursor:pointer;">
+          <span class="hanko">和</span><h1>JAPAN MONO</h1>
+        </a>
+        <p>Everyday Japanese kitchenware, bedroom linens, living-room pieces and toiletries — curated and shipped worldwide.</p>
+      </div>
+      <div class="social-row">
+        <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M14 9h3V6h-3a4 4 0 0 0-4 4v2H7v3h3v6h3v-6h3l1-3h-4v-2a1 1 0 0 1 1-1z"/></svg></a>
+        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg></a>
+        <a href="#" aria-label="TikTok"><svg viewBox="0 0 24 24"><path d="M16 3c.4 2.4 2 4 4.5 4.2V10c-1.7 0-3.2-.5-4.5-1.4V16a5 5 0 1 1-5-5v3a2 2 0 1 0 2 2V3h3z" fill="currentColor" stroke="none"/></svg></a>
+        <a href="#" aria-label="Email"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Japan Mono. All rights reserved.</span>
+      <span>support@japanmono.com</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ CART DRAWER ============ -->
+<div class="overlay" id="drawerOverlay"></div>
+<aside class="drawer" id="cartDrawer">
+  <div class="drawer-head">
+    <div>
+      <h3>Your Cart</h3>
+      <div class="count-pill" id="drawerCountPill">0 items</div>
+    </div>
+    <button class="drawer-close" id="drawerClose">×</button>
+  </div>
+  <div class="drawer-items" id="drawerItems"></div>
+  <div class="drawer-foot">
+    <div class="drawer-sub"><span>Subtotal</span><span id="drawerSubtotal">$0.00</span></div>
+    <button class="checkout-btn" id="drawerCheckoutBtn">Checkout</button>
+  </div>
+</aside>
+
+<!-- ============ QUICK VIEW / ADD-TO-CART MODAL ============ -->
+<div class="modal" id="quickView">
+  <button class="modal-close" id="qvClose">×</button>
+  <div class="qv-body">
+    <div class="qv-img"><img id="qvImg" src="" alt=""></div>
+    <div class="qv-info">
+      <span class="card-cat" id="qvCat"></span>
+      <h3 id="qvName"></h3>
+      <span class="qv-price" id="qvPrice"></span>
+      <span class="qv-stock" id="qvStock"></span>
+      <div class="qty-row">
+        <span class="lbl">Qty</span>
+        <div class="stepper">
+          <button id="qvMinus" type="button">–</button>
+          <input id="qvQty" value="1" inputmode="numeric">
+          <button id="qvPlus" type="button">+</button>
+        </div>
+      </div>
+      <button class="qv-add" id="qvAddBtn">Add to Cart</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CHECKOUT MODAL ============ -->
+<div class="modal" id="checkoutModal">
+  <button class="modal-close" id="coClose">×</button>
+  <div class="panel-stage">
+
+    <!-- step 1: review order -->
+    <div class="stage-view active" id="stageReview">
+      <h3>Review your order</h3>
+      <div class="co-sub" id="coCount">0 items</div>
+      <div class="co-list" id="coList"></div>
+      <div class="co-total"><span>Total</span><span id="coTotal">$0.00</span></div>
+      <button class="checkout-btn" id="coContinueBtn">Continue to checkout</button>
+    </div>
+
+    <!-- step 2: login / signup -->
+    <div class="stage-view" id="stageAuth">
+      <h3 id="authTitle">Log in to continue</h3>
+      <div class="co-sub">Sign in so we can ship your order to the right door.</div>
+      <div class="form-field"><label>Email</label><input type="email" placeholder="you@example.com"></div>
+      <div class="form-field" id="authNameField" style="display:none;"><label>Full name</label><input type="text" placeholder="Your name"></div>
+      <div class="form-field"><label>Password</label><input type="password" placeholder="••••••••"></div>
+      <button class="checkout-btn" id="authSubmitBtn">Log In</button>
+      <div class="auth-toggle">
+        <span id="authSwitchLabel">New to Japan Mono?</span>
+        <button id="authSwitchBtn" type="button">Create an account</button>
+      </div>
+    </div>
+
+    <!-- step 3: payment -->
+    <div class="stage-view" id="stagePayment">
+      <h3>Choose a payment method</h3>
+      <div class="co-sub">Total due: <span id="coTotalPay">$0.00</span></div>
+      <div class="pay-options">
+        <label class="pay-option"><input type="radio" name="pay" checked> Credit / Debit Card</label>
+        <label class="pay-option"><input type="radio" name="pay"> PayPal</label>
+        <label class="pay-option"><input type="radio" name="pay"> Konbini Payment (Japan)</label>
+      </div>
+      <button class="checkout-btn" id="confirmPayBtn">Confirm Payment</button>
+    </div>
+
+    <!-- step 4: success -->
+    <div class="stage-view" id="stageSuccess">
+      <div class="success-box">
+        <span class="hanko">和</span>
+        <h3>Order placed — ありがとう</h3>
+        <p>Thank you for shopping with Japan Mono. A confirmation has been sent to your email.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DATA
+   Note: product/category images use picsum.photos seeded placeholders
+   so each item gets a stable, repeatable image without an API key.
+   Replace the src/seed values with real product photography at launch.
+   ============================================================ */
+const PRODUCTS = [
+  // Kitchen
+  {id:1,  name:"Hand-Forged Santoku Knife",       price:128, category:"kitchen",    stock:6,  img:"https://picsum.photos/seed/jm-santoku-knife/600/600"},
+  {id:2,  name:"Matcha Ceremony Set",              price:58,  category:"kitchen",    stock:14, img:"https://picsum.photos/seed/jm-matcha-set/600/600"},
+  {id:3,  name:"Donabe Clay Hot Pot",               price:94,  category:"kitchen",    stock:5,  img:"https://picsum.photos/seed/jm-donabe-pot/600/600"},
+  {id:4,  name:"Indigo Glazed Rice Bowls, Set of 4",price:46,  category:"kitchen",    stock:21, img:"https://picsum.photos/seed/jm-indigo-bowls/600/600"},
+  {id:5,  name:"Cast Iron Tetsubin Teapot",         price:76,  category:"kitchen",    stock:9,  img:"https://picsum.photos/seed/jm-tetsubin/600/600"},
+  {id:6,  name:"Bamboo Tea Whisk, Chasen",          price:22,  category:"kitchen",    stock:30, img:"https://picsum.photos/seed/jm-chasen/600/600"},
+  // Bedroom
+  {id:7,  name:"Shibori Cotton Futon Cover",        price:112, category:"bedroom",    stock:8,  img:"https://picsum.photos/seed/jm-shibori-futon/600/600"},
+  {id:8,  name:"Kakebuton Quilted Throw",           price:89,  category:"bedroom",    stock:11, img:"https://picsum.photos/seed/jm-kakebuton/600/600"},
+  {id:9,  name:"Washi Paper Lantern",                price:34,  category:"bedroom",    stock:17, img:"https://picsum.photos/seed/jm-washi-lantern/600/600"},
+  {id:10, name:"Cedar Wood Pillow Block",            price:28,  category:"bedroom",    stock:13, img:"https://picsum.photos/seed/jm-cedar-pillow/600/600"},
+  {id:11, name:"Tatami Floor Cushion",               price:52,  category:"bedroom",    stock:19, img:"https://picsum.photos/seed/jm-tatami-cushion/600/600"},
+  {id:12, name:"Sakura Print Bedding Set",           price:138, category:"bedroom",    stock:4,  img:"https://picsum.photos/seed/jm-sakura-bedding/600/600"},
+  // Living room
+  {id:13, name:"Low Kotatsu Table",                  price:245, category:"living",     stock:3,  img:"https://picsum.photos/seed/jm-kotatsu/600/600"},
+  {id:14, name:"Shoji Folding Screen",                price:310, category:"living",     stock:2,  img:"https://picsum.photos/seed/jm-shoji-screen/600/600"},
+  {id:15, name:"Seigaiha Throw Pillow",               price:32,  category:"living",     stock:24, img:"https://picsum.photos/seed/jm-seigaiha-pillow/600/600"},
+  {id:16, name:"Hand-Painted Noren Curtain",          price:48,  category:"living",     stock:10, img:"https://picsum.photos/seed/jm-noren-curtain/600/600"},
+  {id:17, name:"Bonsai Display Tray",                 price:65,  category:"living",     stock:7,  img:"https://picsum.photos/seed/jm-bonsai-tray/600/600"},
+  {id:18, name:"Lacquerware Tea Tray",                price:58,  category:"living",     stock:12, img:"https://picsum.photos/seed/jm-lacquer-tray/600/600"},
+  // Toiletries
+  {id:19, name:"Yuzu Bath Salts",                     price:24,  category:"toiletries", stock:40, img:"https://picsum.photos/seed/jm-yuzu-salts/600/600"},
+  {id:20, name:"Camellia Oil Hair Set",                price:36,  category:"toiletries", stock:22, img:"https://picsum.photos/seed/jm-camellia-oil/600/600"},
+  {id:21, name:"Binchotan Charcoal Soap",              price:18,  category:"toiletries", stock:35, img:"https://picsum.photos/seed/jm-binchotan-soap/600/600"},
+  {id:22, name:"Kumano Makeup Brush Set",              price:82,  category:"toiletries", stock:6,  img:"https://picsum.photos/seed/jm-kumano-brushes/600/600"},
+  {id:23, name:"Konjac Cleansing Sponge",              price:14,  category:"toiletries", stock:50, img:"https://picsum.photos/seed/jm-konjac-sponge/600/600"},
+  {id:24, name:"Rice Bran Facial Powder",              price:26,  category:"toiletries", stock:18, img:"https://picsum.photos/seed/jm-ricebran-powder/600/600"},
+];
+
+const CATEGORY_LABELS = {kitchen:"Kitchen", bedroom:"Bedroom", living:"Living Room", toiletries:"Toiletries"};
+
+const SHOWCASE = [
+  {cat:"kitchen",    label:"Kitchen Items",     jp:"台所",  img:"https://picsum.photos/seed/jm-room-kitchen/900/560"},
+  {cat:"bedroom",    label:"Bedroom Items",     jp:"寝室",  img:"https://picsum.photos/seed/jm-room-bedroom/900/560"},
+  {cat:"living",     label:"Living Room Items", jp:"居間",  img:"https://picsum.photos/seed/jm-room-living/900/560"},
+  {cat:"toiletries", label:"Toiletries",        jp:"洗面",  img:"https://picsum.photos/seed/jm-room-toiletries/900/560"},
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let cart = {};          // {productId: qty}
+let isLoggedIn = false;
+let activeProductForQV = null;
+let currentFilter = {type:"all", value:""};
+
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
+const money = (n) => "$" + n.toFixed(2);
+
+/* ============================================================
+   RENDER: PRODUCT GRID
+   ============================================================ */
+function renderGrid(){
+  const grid = $("#productGrid");
+  grid.innerHTML = "";
+
+  let list = PRODUCTS;
+  if(currentFilter.type === "category" && currentFilter.value !== "all"){
+    list = list.filter(p => p.category === currentFilter.value);
+  } else if(currentFilter.type === "search" && currentFilter.value){
+    const q = currentFilter.value.toLowerCase();
+    list = list.filter(p => p.name.toLowerCase().includes(q) || CATEGORY_LABELS[p.category].toLowerCase().includes(q));
+  }
+
+  const meta = $("#searchMeta");
+  if(currentFilter.type === "search" && currentFilter.value){
+    meta.innerHTML = `${list.length} result${list.length!==1?"s":""} for "${currentFilter.value}" <button id="clearSearch">Clear</button>`;
+    $("#clearSearch").onclick = () => { currentFilter = {type:"all", value:""}; $("#searchInput").value=""; renderGrid(); };
+  } else if(currentFilter.type === "category" && currentFilter.value !== "all"){
+    meta.innerHTML = `Showing ${CATEGORY_LABELS[currentFilter.value]} <button id="clearSearch">View all</button>`;
+    $("#clearSearch").onclick = () => { currentFilter = {type:"all", value:""}; renderGrid(); };
+  } else {
+    meta.innerHTML = "";
+  }
+
+  if(list.length === 0){
+    grid.innerHTML = `<p style="font-family:var(--mono);color:var(--wine);grid-column:1/-1;">No items matched. Try another search term.</p>`;
+    return;
+  }
+
+  list.forEach((p) => {
+    const card = document.createElement("article");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="card-media">
+        ${p.stock <= 5 ? `<span class="tag">Low stock</span>` : ``}
+        <img data-src="${p.img}" alt="${p.name}">
+      </div>
+      <div class="card-body">
+        <span class="card-cat">${CATEGORY_LABELS[p.category]}</span>
+        <span class="card-name">${p.name}</span>
+        <span class="card-price">${money(p.price)}</span>
+        <button class="add-btn" data-id="${p.id}">Add to Cart</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  attachObservers();
+  $$(".add-btn").forEach(btn => btn.onclick = () => openQuickView(parseInt(btn.dataset.id)));
+}
+
+/* image swap-in only once visible (scroll reveal also drives image load-in) */
+function attachObservers(){
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        const card = entry.target;
+        card.classList.add("visible");
+        const img = card.querySelector("img[data-src]");
+        if(img){ img.src = img.dataset.src; img.removeAttribute("data-src"); }
+        obs.unobserve(card);
+      }
+    });
+  }, {threshold:.15});
+  $$(".card").forEach(c => obs.observe(c));
+}
+
+/* showcase cards use the same reveal-on-scroll pattern */
+function attachShowcaseObserver(){
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){ entry.target.classList.add("visible"); obs.unobserve(entry.target); }
+    });
+  }, {threshold:.2});
+  $$(".showcase-card").forEach(c => obs.observe(c));
+}
+
+function renderShowcase(){
+  const wrap = $("#showcaseGrid");
+  wrap.innerHTML = SHOWCASE.map(s => `
+    <a href="#products" class="showcase-card" data-cat="${s.cat}">
+      <img src="${s.img}" alt="${s.label}">
+      <div class="showcase-label">
+        <span class="eyebrow">${s.jp}</span>
+        <h3>${s.label}</h3>
+      </div>
+    </a>
+  `).join("");
+  $$(".showcase-card").forEach(el => el.onclick = (e) => {
+    e.preventDefault();
+    currentFilter = {type:"category", value: el.dataset.cat};
+    renderGrid();
+    document.getElementById("products").scrollIntoView({behavior:"smooth"});
+  });
+  attachShowcaseObserver();
+}
+
+/* ============================================================
+   HERO CAROUSEL
+   ============================================================ */
+let slideIndex = 0;
+const slides = $$(".slide");
+function renderDots(){
+  const dotsWrap = $("#dots");
+  dotsWrap.innerHTML = "";
+  slides.forEach((_, i) => {
+    const d = document.createElement("button");
+    d.className = "dot" + (i===0?" active":"");
+    d.onclick = () => goToSlide(i);
+    dotsWrap.appendChild(d);
+  });
+}
+function goToSlide(i){
+  slides[slideIndex].classList.remove("active");
+  $$(".dot")[slideIndex].classList.remove("active");
+  slideIndex = i;
+  slides[slideIndex].classList.add("active");
+  $$(".dot")[slideIndex].classList.add("active");
+}
+function nextSlide(){ goToSlide((slideIndex+1) % slides.length); }
+renderDots();
+setInterval(nextSlide, 5500);
+
+/* ============================================================
+   NAV: burger / search
+   ============================================================ */
+const burgerBtn = $("#burgerBtn"), burgerPanel = $("#burgerPanel"), burgerOverlay = $("#burgerOverlay");
+function openBurger(){ burgerPanel.classList.add("open"); burgerOverlay.classList.add("show"); burgerBtn.classList.add("open"); }
+function closeBurger(){ burgerPanel.classList.remove("open"); burgerOverlay.classList.remove("show"); burgerBtn.classList.remove("open"); }
+burgerBtn.onclick = () => burgerPanel.classList.contains("open") ? closeBurger() : openBurger();
+$("#burgerClose").onclick = closeBurger;
+burgerOverlay.onclick = closeBurger;
+$$(".cat-list a").forEach(a => a.onclick = (e) => {
+  e.preventDefault();
+  const cat = a.dataset.cat;
+  currentFilter = cat === "all" ? {type:"all", value:""} : {type:"category", value:cat};
+  renderGrid();
+  closeBurger();
+  document.getElementById("products").scrollIntoView({behavior:"smooth"});
+});
+
+const searchWrap = $("#searchWrap"), searchInput = $("#searchInput");
+$("#searchBtn").onclick = () => {
+  if(!searchWrap.classList.contains("active")){
+    searchWrap.classList.add("active");
+    searchInput.focus();
+  } else {
+    runSearch();
+  }
+};
+searchInput.addEventListener("keydown", (e) => { if(e.key === "Enter") runSearch(); });
+function runSearch(){
+  const q = searchInput.value.trim();
+  currentFilter = q ? {type:"search", value:q} : {type:"all", value:""};
+  renderGrid();
+  document.getElementById("products").scrollIntoView({behavior:"smooth"});
+}
+
+/* store name / logo returns to homepage */
+function goHome(){
+  currentFilter = {type:"all", value:""};
+  searchInput.value = "";
+  searchWrap.classList.remove("active");
+  renderGrid();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+$("#homeLink").onclick = (e) => { e.preventDefault(); goHome(); };
+$("#homeLinkFooter").onclick = (e) => { e.preventDefault(); goHome(); };
+
+/* ============================================================
+   CART LOGIC
+   ============================================================ */
+function cartTotalQty(){ return Object.values(cart).reduce((a,b)=>a+b,0); }
+function cartSubtotal(){
+  return Object.entries(cart).reduce((sum,[id,qty]) => {
+    const p = PRODUCTS.find(p=>p.id===parseInt(id));
+    return sum + (p ? p.price*qty : 0);
+  },0);
+}
+function updateCartBadge(bump=false){
+  const count = cartTotalQty();
+  const badge = $("#cartCount");
+  badge.textContent = count;
+  badge.classList.toggle("show", count>0);
+  if(bump){ badge.classList.remove("bump"); requestAnimationFrame(()=>badge.classList.add("bump")); }
+}
+function addToCart(id, qty){
+  cart[id] = (cart[id]||0) + qty;
+  updateCartBadge(true);
+  renderDrawer();
+}
+function removeFromCart(id){
+  delete cart[id];
+  updateCartBadge();
+  renderDrawer();
+}
+function renderDrawer(){
+  const wrap = $("#drawerItems");
+  const ids = Object.keys(cart);
+  $("#drawerCountPill").textContent = `${cartTotalQty()} item${cartTotalQty()!==1?"s":""}`;
+  $("#drawerSubtotal").textContent = money(cartSubtotal());
+  $("#drawerCheckoutBtn").disabled = ids.length===0;
+
+  if(ids.length===0){
+    wrap.innerHTML = `<div class="drawer-empty">Your cart is empty.<br>Browse our collections and add something you love.</div>`;
+    return;
+  }
+  wrap.innerHTML = ids.map(id => {
+    const p = PRODUCTS.find(p=>p.id===parseInt(id));
+    const qty = cart[id];
+    return `
+      <div class="drawer-row">
+        <img src="${p.img}" alt="${p.name}">
+        <div style="flex:1;">
+          <div class="di-name">${p.name}</div>
+          <div class="di-meta">${qty} × ${money(p.price)} = ${money(qty*p.price)}</div>
+          <div class="di-remove" data-id="${p.id}">Remove</div>
+        </div>
+      </div>`;
+  }).join("");
+  $$(".di-remove").forEach(el => el.onclick = () => removeFromCart(el.dataset.id));
+}
+
+const cartDrawer = $("#cartDrawer"), drawerOverlay = $("#drawerOverlay");
+function openDrawer(){ renderDrawer(); cartDrawer.classList.add("open"); drawerOverlay.classList.add("show"); }
+function closeDrawer(){ cartDrawer.classList.remove("open"); drawerOverlay.classList.remove("show"); }
+$("#cartBtn").onclick = openDrawer;
+$("#drawerClose").onclick = closeDrawer;
+drawerOverlay.onclick = closeDrawer;
+
+/* ============================================================
+   QUICK VIEW MODAL (add to cart with qty + stock)
+   ============================================================ */
+const qvModal = $("#quickView");
+function openQuickView(id){
+  const p = PRODUCTS.find(p=>p.id===id);
+  if(!p) return;
+  activeProductForQV = p;
+  $("#qvImg").src = p.img; $("#qvImg").alt = p.name;
+  $("#qvCat").textContent = CATEGORY_LABELS[p.category];
+  $("#qvName").textContent = p.name;
+  $("#qvPrice").textContent = money(p.price);
+  const stockEl = $("#qvStock");
+  stockEl.textContent = `${p.stock} in stock`;
+  stockEl.classList.toggle("low", p.stock<=5);
+  $("#qvQty").value = 1;
+  qvModal.classList.add("show");
+  document.body.style.overflow = "hidden";
+}
+function closeQuickView(){
+  qvModal.classList.remove("show");
+  document.body.style.overflow = "";
+}
+$("#qvClose").onclick = closeQuickView;
+qvModal.addEventListener("click", (e) => { if(e.target === qvModal) closeQuickView(); });
+
+function clampQty(val){
+  const max = activeProductForQV ? activeProductForQV.stock : 99;
+  let n = parseInt(val) || 1;
+  if(n < 1) n = 1;
+  if(n > max) n = max;
+  return n;
+}
+$("#qvMinus").onclick = () => { $("#qvQty").value = clampQty(parseInt($("#qvQty").value)-1); };
+$("#qvPlus").onclick  = () => { $("#qvQty").value = clampQty(parseInt($("#qvQty").value)+1); };
+$("#qvQty").addEventListener("change", (e) => { e.target.value = clampQty(e.target.value); });
+
+$("#qvAddBtn").onclick = () => {
+  if(!activeProductForQV) return;
+  const qty = clampQty($("#qvQty").value);
+  addToCart(activeProductForQV.id, qty);
+  closeQuickView();
+};
+
+/* ============================================================
+   CHECKOUT MODAL FLOW
+   review -> auth (if needed) -> payment -> success
+   ============================================================ */
+const checkoutModal = $("#checkoutModal");
+const stages = {
+  review:  $("#stageReview"),
+  auth:    $("#stageAuth"),
+  payment: $("#stagePayment"),
+  success: $("#stageSuccess"),
+};
+function showStage(name){
+  Object.values(stages).forEach(s => s.classList.remove("active"));
+  stages[name].classList.add("active");
+}
+function openCheckout(){
+  if(cartTotalQty()===0) return;
+  renderCheckoutList();
+  showStage("review");
+  checkoutModal.classList.add("show");
+  document.body.style.overflow = "hidden";
+  closeDrawer();
+}
+function closeCheckout(){
+  checkoutModal.classList.remove("show");
+  document.body.style.overflow = "";
+}
+$("#coClose").onclick = closeCheckout;
+checkoutModal.addEventListener("click", (e) => { if(e.target === checkoutModal) closeCheckout(); });
+
+function renderCheckoutList(){
+  const ids = Object.keys(cart);
+  $("#coCount").textContent = `${cartTotalQty()} item${cartTotalQty()!==1?"s":""}`;
+  $("#coList").innerHTML = ids.map(id => {
+    const p = PRODUCTS.find(p=>p.id===parseInt(id));
+    const qty = cart[id];
+    return `
+      <div class="co-row">
+        <div class="co-left">
+          <img src="${p.img}" alt="${p.name}">
+          <div>
+            <div class="co-name">${p.name}</div>
+            <div class="co-qty">Qty ${qty}</div>
+          </div>
+        </div>
+        <div class="co-amt">${money(qty*p.price)}</div>
+      </div>`;
+  }).join("");
+  $("#coTotal").textContent = money(cartSubtotal());
+  $("#coTotalPay").textContent = money(cartSubtotal());
+}
+
+$("#drawerCheckoutBtn").onclick = openCheckout;
+
+/* step: review -> auth or payment */
+$("#coContinueBtn").onclick = () => {
+  if(isLoggedIn){ showStage("payment"); }
+  else { showStage("auth"); }
+};
+
+/* auth: toggle login / signup copy */
+let authMode = "login";
+$("#authSwitchBtn").onclick = () => {
+  authMode = authMode === "login" ? "signup" : "login";
+  if(authMode === "signup"){
+    $("#authTitle").textContent = "Create your account";
+    $("#authNameField").style.display = "flex";
+    $("#authSubmitBtn").textContent = "Sign Up";
+    $("#authSwitchLabel").textContent = "Already have an account?";
+    $("#authSwitchBtn").textContent = "Log in";
+  } else {
+    $("#authTitle").textContent = "Log in to continue";
+    $("#authNameField").style.display = "none";
+    $("#authSubmitBtn").textContent = "Log In";
+    $("#authSwitchLabel").textContent = "New to Japan Mono?";
+    $("#authSwitchBtn").textContent = "Create an account";
+  }
+};
+$("#authSubmitBtn").onclick = () => {
+  // demo flow: any submission "signs the user in"
+  isLoggedIn = true;
+  showStage("payment");
+};
+
+/* payment confirm -> success, clear cart */
+$("#confirmPayBtn").onclick = () => {
+  showStage("success");
+  cart = {};
+  updateCartBadge();
+  renderDrawer();
+  setTimeout(() => { closeCheckout(); }, 2600);
+};
+
+/* ============================================================
+   INIT
+   ============================================================ */
+renderGrid();
+renderShowcase();
+updateCartBadge();
+</script>
+</body>
+</html>
